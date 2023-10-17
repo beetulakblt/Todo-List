@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link href="css/index.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row companent" style="color: #eceef2">
+        <div class="col-12 header-top">
+          <h4>TO DO LİST</h4>
+          <div class="header-right d-flex">
+            <button class="mode">
+              <p><i class="ri-sun-line"></i></p>
+            </button>
+            <button class="login">
+              <p><img src="image/people.jpg" /></p>
+            </button>
+          </div>
+        </div>
+        <div class="col-12 header-bottom">
+          <button class="filter">
+            <p><i class="ri-filter-line"></i></p>
+            <p>Filtreler</p>
+          </button>
+          <button class="plus" onclick="new_todo()">
+            <i class="ri-add-fill"></i>
+            <p>Yeni Kayıt</p>
+          </button>
+        </div>
+        <div class="col my-1 mx-5">
+          <div class="content d-flex justify-content-between">
+            <div class="col-3 box">
+              <div class="box-head">
+                <div class="boxhead-left d-flex align-items-center gap-2">
+                  <div
+                    class="d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <i class="ri-bubble-chart-fill" style="font-size: 25px"></i>
+                    <h6>Yapılacak Görevler</h6>
+                  </div>
+                  <div class="recorder" id="todoRecorder"></div>
+                </div>
+                <button class="arrangement">
+                  <p>Sıralama</p>
+                  <i class="ri-expand-up-down-fill"></i>
+                </button>
+              </div>
+              <div id="content-box" class="box-content"></div>
+            </div>
+            <div class="col-3 box">
+              <div class="box-head">
+                <div class="boxhead-left d-flex align-items-center gap-2">
+                  <div
+                    class="d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <i class="ri-bubble-chart-fill" style="font-size: 25px"></i>
+                    <h6>Devam Eden Görevler</h6>
+                  </div>
+                  <div class="recorder" id="doingRecorder"></div>
+                </div>
+                <button class="arrangement">
+                  <p>Sıralama</p>
+                  <i class="ri-expand-up-down-fill"></i>
+                </button>
+              </div>
+              <div id="boxDoing" class="box-content"></div>
+            </div>
+            <div class="col-3 box">
+              <div class="box-head">
+                <div class="boxhead-left d-flex align-items-center gap-2">
+                  <div
+                    class="d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <i class="ri-bubble-chart-fill" style="font-size: 25px"></i>
+                    <h6>Biten Görevler</h6>
+                  </div>
+                  <div class="recorder"  id="doneRecorder"></div>
+                </div>
+                <button class="arrangement">
+                  <p>Sıralama</p>
+                  <i class="ri-expand-up-down-fill"></i>
+                </button>
+              </div>
+              <div id="boxDone" class="box-content"></div>
+            </div>
+            <div id="addCardModal" class="d-none">
+              <div id="add-card" class="col-4 add d-flex">
+                <div class="add-head d-flex justify-content-between">
+                  <p>Yeni Görev Ekle</p>
+                  <button
+                    class="btn-close add-close"
+                    onclick="add_hide()"
+                  ></button>
+                </div>
+                <div
+                  class="alert alert-warning alert-dismissible fade show"
+                  role="alert"
+                >
+                  <strong>Holy guacamole!</strong> You should check in on some
+                  of those fields below.
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="add-content d-flex flex-column gap-1">
+                  <p class="d-flex gap-1">
+                    Görev Başlığı
+                    <i
+                      class="ri-asterisk"
+                      style="color: red; font-size: 7px"
+                    ></i>
+                  </p>
+                  <div
+                    class="addTitleInput d-flex justify-content-between align-items-center"
+                  >
+                    <input
+                      id="add-title"
+                      type="text"
+                      placeholder="  Lütfen Başlık Girin"
+                      class="input-form"
+                    />
+                    <span id="titleWarningIcon" class="alert-icon d-none"
+                      ><i class="ri-error-warning-fill"></i>
+                      <div class="popover">Boş alan!</div>
+                    </span>
+                  </div>
+
+                  <p class="d-flex gap-1">
+                    Görev İçeriği
+                    <i
+                      class="ri-asterisk"
+                      style="color: red; font-size: 7px"
+                    ></i>
+                  </p>
+                  <div
+                    class="addContentText d-flex justify-content-between align-items-center"
+                  >
+                    <textarea
+                      id="add-content"
+                      cols="40"
+                      rows="5"
+                      placeholder="Lütfen İçeriği Girin"
+                      class="input-form"
+                    ></textarea>
+                    <span id="contentWarningIcon" class="alert-icon d-none"
+                      ><i class="ri-error-warning-fill"></i>
+                      <div class="popover">Boş alan!</div>
+                    </span>
+                  </div>
+
+                  <p class="d-flex gap-1">
+                    Görev Bitiş Tarihi
+                    <i
+                      class="ri-asterisk"
+                      style="color: red; font-size: 7px"
+                    ></i>
+                  </p>
+                  <div
+                    class="addDateInput d-flex justify-content-between align-items-center"
+                  >
+                    <input class="input-form" id="add-date" type="date" />
+                    <span id="dateWarningIcon" class="alert-icon d-none">
+                      <i class="ri-error-warning-fill iconWar"></i>
+                      <div class="popover">Boş alan!</div>
+                    </span>
+                  </div>
+
+                  <div class="form-box">
+                    <div class="form-label-box">
+                      <label class="d-flex align-items-center">
+                        Görevli
+                        <i
+                          class="ri-asterisk ms-2"
+                          style="color: red; font-size: 7px"
+                        ></i
+                      ></label>
+                    </div>
+                    <div class="form-input-box d-flex justify-content-between">
+                      <div class="selected d-flex position-relative p-2">
+                        <span class="selected-placeholder">Lütfen seçin</span>
+                        <div
+                          id="add-select"
+                          class="selected-options d-none"
+                        ></div>
+                        <i
+                          class="ri-arrow-down-s-line position-absolute"
+                          style="right: 8px; font-size: 15px"
+                        ></i>
+                      </div>
+                      <div class="selected-value">
+                        <input
+                          class="input-form"
+                          type="hidden"
+                          id="selectUser"
+                        />
+                        <span class="alert-icon d-none"
+                          ><i class="ri-error-warning-fill"></i>
+                          <div class="popover">Boş alan!</div>
+                        </span>
+                      </div>
+                      <div class="selected-menu d-none">
+                        <ul id="userList" class="ps-0 list-unstyled"></ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="add-footer">
+                  <button class="give-up" onclick="add_hide()">VAZGEÇ</button>
+                  <button id="add-button">EKLE</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="todoDetail" class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Modal title</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>Modal body text goes here.</p>
+          </div>
+          <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> -->
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/user-list.js"></script>
+    <script src="js/cardcounts.js"></script>
+    <script src="js/index.js"></script>
+  </body>
+</html>

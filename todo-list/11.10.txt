@@ -1,0 +1,972 @@
+var more = document.getElementsByClassName("more");
+var edit_card = document.getElementById("edit-delete");
+var plus = document.getElementsByClassName("plus");
+var add_card = document.getElementById("add-card");
+// var add_button = document.getElementsByClassName("add-button");
+var give_button = document.getElementsByClassName("give-up");
+
+var add_title = document.getElementById("add-title");
+var add_content = document.getElementById("add-content");
+var add_date = document.getElementById("add-date");
+var content_box = document.getElementById("content-box");
+var alertIcon = document.querySelector("span");
+
+let thisUpdateCard;
+let formStatus = "insert";
+
+function edit_hide() {
+  if (edit_card.style.display === "none") {
+    edit_card.style.display = "flex";
+  } else {
+    edit_card.style.display = "none";
+  }
+}
+
+function new_todo() {
+  formStatus = "insert";
+  add_show();
+}
+
+function add_show() {
+  //add_card.style.display = "flex";
+  userList.forEach((v, i) => {
+    let userOption = `<li data-id='${v.user_id}'>
+      <img class='user-image' src="image/${v.user_image_path}" />
+      <span class='user-name'>${v.user_name}</span>
+    </li>`;
+    $("#userList").append(userOption);
+  });
+  $("#addCardModal").removeClass("d-none");
+}
+
+function add_hide() {
+  $(".alert-icon").addClass("d-none");
+  $("#addCardModal").addClass("d-none");
+  clear_add();
+}
+
+function uyarı() {
+  $("#addCardModal .input-form").each((i, v) => {
+    let inputValue = $(v).val();
+    if (inputValue == "") {
+      $(v).siblings(".alert-icon").removeClass("d-none");
+    } else {
+      $(v).siblings(".alert-icon").addClass("d-none");
+    }
+  });
+}
+
+$("#add-button").on("click", function () {
+  var cardTitle = $("#add-title").val().trim();
+  var cardContent = $("#add-content").val().trim();
+  var cardDate = $("#add-date").val().trim();
+  var cardPersonnel = $("#select-text").val();
+
+  if (
+    cardTitle == "" ||
+    cardContent == "" ||
+    cardDate == "" ||
+    cardPersonnel == ""
+  ) {
+    uyarı();
+    return;
+  }
+  if (formStatus == "insert") {
+    var card = `
+   <div id="cardId" class="card" draggable="true">
+      <div class="card-header">
+        <h6 class="card-title">${cardTitle}</h6>
+        <div class="dropdown">
+          <button
+            class="btn btn-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="ri-more-fill"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+            <a class="dropdown-item edit-card" href="#">Düzenle
+             <i class="ri-edit-line"></i>
+             </a>
+            </li>
+            <li >
+            <a class="dropdown-item delete-card" href="#">Sil 
+            <i class="ri-delete-bin-line"></i>
+            </a>
+            </li>
+          </ul>
+        </div>
+			</div>
+      <div class="card-body">
+        <p id="card-text" class="card-content" onclick="toggleText(this)">${cardContent}</p>
+        <div class="personnel">
+        </div>
+        <p href="#" class="card-date">
+          <i class="ri-error-warning-fill" style="color: red; font-size: 14px;"></i> 
+          ${cardDate}
+        </p>
+      </div>
+    </div>
+    `;
+
+    content_box.innerHTML += card;
+  }
+  if (formStatus == "update") {
+    $(thisUpdateCard).find(".card-title").text(cardTitle);
+    $(thisUpdateCard).find(".card-content").text(cardContent);
+    $(thisUpdateCard).find(".card-date").text(cardDate);
+  }
+
+  add_hide();
+});
+
+function clear_add() {
+  $("#add-title").val("");
+  $("#add-content").val("");
+  $("#add-date").val("");
+  $("#select-text").val("");
+}
+
+function toggleText(element) {
+  if (element.style.overflow === "hidden") {
+    element.style.overflow = "visible";
+    element.style.whiteSpace = "normal";
+    // cardId.style.height = "auto"
+  } else {
+    element.style.overflow = "hidden";
+    element.style.whiteSpace = "nowrap";
+  }
+}
+//<-------card silme--------------->
+let $thisBtn;
+$("body").on("click", ".delete-card", function () {
+  let $this = $(this);
+  let $thisParentEl = $this.parents().eq(4);
+  deleteCard($thisParentEl);
+});
+
+function deleteCard(card) {
+  $(card).remove();
+}
+
+$("body").on("click", ".edit-card", function () {
+  thisUpdateCard = $(this).parents().eq(4);
+  let card_title = $(thisUpdateCard).find(".card-title").text();
+  let card_content = $(thisUpdateCard).find(".card-content").text();
+  let card_date = $(thisUpdateCard).find(".card-date").text();
+
+  setUpdateModal(card_title, card_content, card_date);
+  formStatus = "update";
+});
+
+//<----------- Tarih formatını Dönüştürme -------------->
+function setUpdateModal(param1, param2, param3) {
+  $(add_title).val(param1);
+  $(add_content).val(param2);
+  var yeniTarih = new Date(param3); // Örnek bir tarih
+  var formatliTarih = formatDate(yeniTarih);
+
+  $(add_date).val(formatliTarih);
+  add_show();
+}
+function formatDate(date) {
+  var year = date.getFullYear();
+  var month = String(date.getMonth() + 1).padStart(2, "0"); // Ayı iki haneli olarak al
+  var day = String(date.getDate()).padStart(2, "0"); // Günü iki haneli olarak al
+  return year + "-" + month + "-" + day;
+}
+//---------SÜRÜKLEME İŞLEMİ---------------->
+var cards = document.querySelectorAll(".card");
+cards.ondragstart = "event.dataTransfer.setData('text/plain',null)";
+var selected;
+document.addEventListener("dragstart", function (e) {
+  selected = e.target;
+});
+document.addEventListener("dragover", function (e) {
+  e.preventDefault();
+});
+document.addEventListener("drop", function (e) {
+  e.preventDefault();
+  if (e.target.className == "box-content") {
+    selected.parentNode.removeChild(selected);
+    e.target.appendChild(selected);
+  }
+});
+
+//<----------- Personel listesi SELECT-OPTİON ------------->
+const selector = document.getElementById("selector");
+const list = document.getElementById("userlist");
+const option = document.getElementById("option");
+const selectText = document.getElementById("select-text");
+const options = document.querySelectorAll("#list li");
+
+const selectedUserList = [];
+
+$("body").on("click", "#userList li", function () {
+  let userName = $(this).find(".user-name").text();
+  let userImage = $(this).find(".user-image").prop("src");
+  let userId = $(this).data("id");
+
+  const isUserIdInArray = selectedUserList.some(
+    (item) => item.user_id === userId
+  );
+  if (!isUserIdInArray) {
+    $(".selected-placeholder").addClass("d-none");
+    let userObj = { user_id: userId, user_name: userName, user_img: userImage };
+    let writeUserOption = `<span>${userObj.user_name}</span>`;
+    
+    $(".selected-options").removeClass("d-none");
+    $(".selected-options").append(writeUserOption + ",");
+
+    selectedUserList.push(userObj);
+  } else {
+    alert("seçildi!");
+    return;
+  }
+
+  
+});
+
+$(".selected").on("click", function () {
+  let $selectedMenu = $(".selected-menu");
+  $selectedMenu.toggleClass("d-none");
+});
+
+
+
+//<---------icone popever eklme-------->
+$(document).ready(function () {
+  $(".alert-icon").hover(
+    function () {
+      $(this).find(".popover").fadeIn();
+    },
+    function () {
+      $(this).find(".popover").fadeOut();
+    }
+  );
+});
+-----------------------------------------
+p,
+h4,
+h6 {
+    margin: 0;
+    padding: 0;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 3rem 5px 3rem;
+    color: black;
+    background-color: #FBFBFB;
+    border-bottom: 1px solid #E1E1E1;
+}
+
+.header-top>h4 {
+    font-weight: 800;
+}
+
+.header-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 1rem;
+    padding: 15px 3rem;
+}
+
+.header-right {
+    gap: 8px;
+}
+
+.filter,
+.plus {
+    align-items: center;
+    justify-content: center;
+    height: 35px;
+    display: flex;
+    gap: 7px;
+    outline: none;
+    border: none;
+    border-radius: 7px;
+}
+
+.filter {
+    background: none;
+    border: 1px solid #E1E1E1;
+    font-size: 15px;
+    width: 90px;
+    font-weight: 400;
+}
+
+.plus {
+    width: 120px;
+    background-color: #38cc78;
+    font-size: 15px;
+    color: #FFFFFF;
+}
+
+.mode {
+    outline: none;
+    border: none;
+    border-radius: 7px;
+    height: 40px;
+    width: 40px;
+    font-size: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.login {
+    outline: none;
+    border: none;
+    padding: 0;
+    background: none;
+}
+
+.login>p>img {
+    border-radius: 7px;
+}
+
+.box {
+    width: 370px;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    padding: 5px;
+    border-radius: 7px;
+    background-color: #f5f2f2;
+    border: 1px solid #E1E1E1;
+}
+
+.box-head {
+    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 70px;
+    color: #000000;
+    border-bottom: 1px solid #E1E1E1;
+    padding: 5px 5px 5px 15px;
+}
+
+.boxhead-left {
+    width: 100%;
+    max-height: 25px;
+    justify-content: space-between;
+}
+
+.boxhead-left>h6 {
+    font-weight: 800;
+}
+
+.recorder {
+    align-self: center;
+    display: flex;
+    font-size: 12px;
+    width: 30px;
+    height: 20px;
+    background-color: #1054CB;
+    color: #FFFFFF;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.arrangement {
+    display: flex;
+    justify-content: center;
+    align-self: flex-end;
+    width: 100px;
+    font-size: 13px;
+    height: 23px;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #E1E1E1;
+    border-radius: 4px;
+    background-color: #dddada;
+    padding: 4px 0px;
+}
+
+.box-content {
+    margin-top: 10px;
+    height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+    /* background-color: #e1e2e687; */
+    border-radius: 15px;
+}
+
+.add {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    background-color: #FFFFFF;
+    border: 1px solid #E1E1E1;
+    height: auto;
+    padding: 10px;
+    border-radius: 15px;
+    left: 32%;
+    top: 17%;
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000;
+    gap: 5px;
+}
+
+.add-head {
+    font-size: 18px;
+    align-items: center;
+    padding: 0px 8px;
+}
+
+.add-close {
+    color: #000000;
+    font-size: 10px;
+    border: none;
+    outline: none;
+    --bs-btn-close-focus-shadow: none;
+}
+
+.addTitleInput>input,
+.add-content>.select,
+.addDateInput>input,
+.selectInput>input {
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    background-color: #F4F5F8;
+    padding-left: 10px;
+    height: 35px;
+    width: 100%;
+    margin-right: 5px;
+    padding-right: 5px;
+}
+
+/* 
+.selectInput>input {
+    margin: 0;
+    border-radius: 0;
+    font-size: 12;
+    color: #000;
+}
+
+.selectInput>i {
+    height: 35px;
+    background-color: #F4F5F8;
+    padding-right: 10px;
+    font-size: 18px;
+}
+
+/* .select {
+    width: 100%;
+    height: 35px;
+
+}
+
+*/
+
+/* .select>ul {
+    height: 80px;
+    background-color: #F4F5F8;
+    position: relative;
+    margin-bottom: 0;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+.hide {
+    visibility: hidden;
+}
+
+.select>ul>li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 12px;
+    padding: 2px 3px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.select>ul>li:hover {
+    background-color: #5591fa;
+}
+
+.select>ul>li>img {
+    border-radius: 50%;
+} */
+
+.addContentText>textarea {
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    background-color: #F4F5F8;
+    padding-left: 10px;
+    margin-right: 5px;
+    width: 100%;
+}
+
+.add-footer {
+    display: flex;
+    align-self: center;
+    gap: 20px;
+    font-size: 13px;
+}
+
+.add-footer>button {
+    outline: none;
+    border-radius: 3px;
+    width: 120px;
+    height: 30px;
+    margin-top: 15px;
+}
+
+.add-content>option {
+    border: none;
+    height: 20px;
+}
+
+.give-up {
+    background: none;
+    border: 1px solid #cfcfcf;
+}
+
+#add-button {
+    border: none;
+    background-color: #5591fa;
+    color: #FFFFFF;
+    font-weight: 700;
+}
+
+.card {
+    max-width: 340px;
+    width: auto;
+    height: auto;
+    font-size: 12px;
+    border: 1px solid #E1E1E1;
+    border-radius: 7px;
+    margin: 10px 5px;
+    padding: 5px 10px 5px 10px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    align-items: center;
+    gap: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0px 5px 0px 10px;
+    height: 30px;
+    border: none;
+    background: none;
+
+}
+
+.card-header>h6 {
+    margin: 0;
+}
+
+.card-title {
+    text-transform: uppercase;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 5px 5px 5px 10px;
+    gap: 10px;
+}
+
+.card-content {
+    color: #73747a;
+}
+
+.card-content::first-letter {
+    text-transform: capitalize;
+}
+
+.card-date {
+    width: 115px;
+    display: flex;
+    align-items: center;
+    align-self: flex-end;
+    justify-content: center;
+    background-color: #BBBCBF;
+    border: 1px solid #E1E1E1;
+    border-radius: 15px;
+    padding: 2px 0px;
+    font-weight: 500;
+    gap: 10px;
+}
+
+.btn-check:checked+.btn,
+.btn.active,
+.btn.show,
+.btn:first-child:active,
+:not(.btn-check)+.btn:active {
+    color: #000;
+    background: none;
+    border: none;
+}
+
+.dropdown {
+    border: none;
+    background: none;
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+
+.dropdown-toggle {
+    margin: 0;
+    background: none;
+    color: #000000;
+    border: none;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.dropdown-toggle:hover {
+    border: none;
+    background: none;
+    color: #000000;
+}
+
+.dropdown-item {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dropdown-menu>li {
+    padding: 0px 5px;
+}
+
+.icerik,
+.tarih {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.card-text {
+    margin-left: 10px;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#addCardModal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    backdrop-filter: brightness(0.5);
+}
+
+.alert-icon {
+    color: red;
+    font-size: 20px;
+    position: relative;
+}
+
+.iconWar {
+    position: relative;
+}
+
+.popover {
+    display: none;
+    position: absolute;
+    bottom: 20px;
+    right: 5px;
+    width: 70px;
+    background-color: #333;
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.selected {
+    width: 100%;
+    color: #757575;
+    background-color: #f4f5f8;
+}
+
+.selected-placeholder {
+    font-size: inherit;
+    font-weight: 400;
+
+}
+
+.selected-menu {
+    position: absolute;
+    top: 26.5rem;
+    right: 30px;
+    left: 10px;
+}
+
+#userList {
+    background-color: #f4f5f8;
+    border: 1px solid gainsboro;
+    border-radius: 4px;
+    margin-top: 6px;
+    overflow: hidden;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+#userList li {
+    margin: 8px;
+    border-bottom: 1px solid gainsboro;
+    padding: 4px;
+}
+
+.selected-options span{
+    font-size: 12px;
+    color: #000;
+    font-weight: 400;
+}
+-------------------------------------------
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link href="css/index.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row companent" style="color: #eceef2">
+        <div class="col-12 header-top">
+          <h4>TO DO LİST</h4>
+          <div class="header-right d-flex">
+            <button class="mode">
+              <p><i class="ri-sun-line"></i></p>
+            </button>
+            <button class="login">
+              <p><img src="image/people.jpg" /></p>
+            </button>
+          </div>
+        </div>
+        <div class="col-12 header-bottom">
+          <button class="filter">
+            <p><i class="ri-filter-line"></i></p>
+            <p>Filtreler</p>
+          </button>
+          <button class="plus" onclick="new_todo()">
+            <i class="ri-add-fill"></i>
+            <p>Yeni Kayıt</p>
+          </button>
+        </div>
+        <div class="col my-1 mx-5">
+          <div class="content d-flex justify-content-between">
+            <div class="col-3 box">
+              <div class="box-head">
+                <div class="boxhead-left d-flex align-items-center gap-2">
+                  <div
+                    class="d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <i class="ri-bubble-chart-fill" style="font-size: 25px"></i>
+                    <h6>Yapılacak Görevler</h6>
+                  </div>
+                  <div class="recorder">12</div>
+                </div>
+                <button class="arrangement">
+                  <p>Sıralama</p>
+                  <i class="ri-expand-up-down-fill"></i>
+                </button>
+              </div>
+              <div id="content-box" class="box-content"></div>
+            </div>
+            <div class="col-3 box">
+              <div class="box-head">
+                <div class="boxhead-left d-flex align-items-center gap-2">
+                  <div
+                    class="d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <i class="ri-bubble-chart-fill" style="font-size: 25px"></i>
+                    <h6>Devam Eden Görevler</h6>
+                  </div>
+                  <div class="recorder">12</div>
+                </div>
+                <button class="arrangement">
+                  <p>Sıralama</p>
+                  <i class="ri-expand-up-down-fill"></i>
+                </button>
+              </div>
+              <div id="content-box" class="box-content"></div>
+            </div>
+            <div class="col-3 box">
+              <div class="box-head">
+                <div class="boxhead-left d-flex align-items-center gap-2">
+                  <div
+                    class="d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <i class="ri-bubble-chart-fill" style="font-size: 25px"></i>
+                    <h6>Biten Görevler</h6>
+                  </div>
+                  <div class="recorder">12</div>
+                </div>
+                <button class="arrangement">
+                  <p>Sıralama</p>
+                  <i class="ri-expand-up-down-fill"></i>
+                </button>
+              </div>
+              <div id="content-box" class="box-content"></div>
+            </div>
+            <div id="addCardModal" class="d-none">
+              <div id="add-card" class="col-4 add d-flex">
+                <div class="add-head d-flex justify-content-between">
+                  <p>Yeni Görev Ekle</p>
+                  <button
+                    class="btn-close add-close"
+                    onclick="add_hide()"
+                  ></button>
+                </div>
+                <div
+                  class="alert alert-warning alert-dismissible fade show"
+                  role="alert"
+                >
+                  <strong>Holy guacamole!</strong> You should check in on some
+                  of those fields below.
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="add-content d-flex flex-column gap-1">
+                  <p class="d-flex gap-1">
+                    Görev Başlığı
+                    <i
+                      class="ri-asterisk"
+                      style="color: red; font-size: 7px"
+                    ></i>
+                  </p>
+                  <div
+                    class="addTitleInput d-flex justify-content-between align-items-center"
+                  >
+                    <input
+                      id="add-title"
+                      type="text"
+                      placeholder="  Lütfen Başlık Girin"
+                      class="input-form"
+                    />
+                    <span id="titleWarningIcon" class="alert-icon d-none"
+                      ><i class="ri-error-warning-fill"></i>
+                      <div class="popover">Boş alan!</div>
+                    </span>
+                  </div>
+
+                  <p class="d-flex gap-1">
+                    Görev İçeriği
+                    <i
+                      class="ri-asterisk"
+                      style="color: red; font-size: 7px"
+                    ></i>
+                  </p>
+                  <div
+                    class="addContentText d-flex justify-content-between align-items-center"
+                  >
+                    <textarea
+                      id="add-content"
+                      cols="40"
+                      rows="5"
+                      placeholder="Lütfen İçeriği Girin"
+                      class="input-form"
+                    ></textarea>
+                    <span id="contentWarningIcon" class="alert-icon d-none"
+                      ><i class="ri-error-warning-fill"></i>
+                      <div class="popover">Boş alan!</div>
+                    </span>
+                  </div>
+
+                  <p class="d-flex gap-1">
+                    Görev Bitiş Tarihi
+                    <i
+                      class="ri-asterisk"
+                      style="color: red; font-size: 7px"
+                    ></i>
+                  </p>
+                  <div
+                    class="addDateInput d-flex justify-content-between align-items-center"
+                  >
+                    <input class="input-form" id="add-date" type="date" />
+                    <span id="dateWarningIcon" class="alert-icon d-none">
+                      <i class="ri-error-warning-fill iconWar"></i>
+                      <div class="popover">Boş alan!</div>
+                    </span>
+                  </div>
+
+                  <div class="form-box">
+                    <div class="form-label-box">
+                      <label class="d-flex align-items-center">
+                        Görevli
+                        <i
+                          class="ri-asterisk ms-2"
+                          style="color: red; font-size: 7px"
+                        ></i
+                      ></label>
+                    </div>
+                    <div class="form-input-box d-flex justify-content-between">
+                      <div class="selected d-flex position-relative p-2">
+                        <span class="selected-placeholder">Lütfen seçin</span>
+                        <div class="selected-options d-none"></div>
+                        <i
+                          class="ri-arrow-down-s-line position-absolute"
+                          style="right: 8px; font-size: 15px"
+                        ></i>
+                      </div>
+                      <div class="selected-value">
+                        <input
+                          class="input-form"
+                          type="hidden"
+                          id="selectUser"
+                        />
+                        <span class="alert-icon d-none"
+                          ><i class="ri-error-warning-fill"></i>
+                          <div class="popover">Boş alan!</div>
+                        </span>
+                      </div>
+                      <div class="selected-menu d-none">
+                        <ul id="userList" class="ps-0 list-unstyled"></ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="add-footer">
+                  <button class="give-up" onclick="add_hide()">VAZGEÇ</button>
+                  <button id="add-button">EKLE</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/user-list.js"></script>
+    <script src="js/index.js"></script>
+  </body>
+</html>

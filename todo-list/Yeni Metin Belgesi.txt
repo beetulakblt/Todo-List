@@ -1,0 +1,47 @@
+ <div class="betul">
+  <div class="select position-relative">
+   <div class="select-placeholder position-absolute">
+     Lütfen Seçiniz
+   </div>
+   <div id="selector" class="d-flex justify-content-between mx-2 align-items-center">
+     <div id="select-text">
+       <img src="" alt="" id="selectedUserImg" />
+       <input
+          id="select-username"
+          type="hidden"
+          class="input-form"
+       />
+     </div>
+      <i id="arrow-icon" class="ri-arrow-down-s-line"></i>
+   </div>
+                    <ul id="list" class="hide">
+                      <li id="option">
+                        <img src="image/personw.png" alt="" />
+                        <p>Betül</p>
+                      </li>
+                      <li id="option">
+                        <img src="image/personw.png" alt="" />
+                        <p>Ülkü</p>
+                      </li>
+                      <li id="option">
+                        <img src="image/personm.png" alt="" />
+                        <p>Bilgi</p>
+                      </li>
+                      <li id="option">
+                        <img src="image/personm.png" alt="" />
+                        <p>Sedat</p>
+                      </li>
+                      <li id="option">
+                        <img src="image/personm.png" alt="" />
+                        <p>Hakan</p>
+                      </li>
+                    </ul>
+                  </div>
+
+
+
+--------------------------------------------
+<span class="alert-icon d-none"
+                    ><i class="ri-error-warning-fill"></i>
+                    <div class="popover">Boş alan!</div></span
+                  >
